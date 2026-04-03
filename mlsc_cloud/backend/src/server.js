@@ -9,8 +9,6 @@ const { PORT } = require("./config");
 const credentialsRouter = require("./routes/credentials");
 
 const app = express();
-const frontendPath = path.join(__dirname, "..", "..", "frontend");
-
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -25,5 +23,5 @@ app.get("/health", (_req, res) => {
 app.use("/api", credentialsRouter);
 
 app.listen(PORT, () => {
-  console.log(`Conference access server running at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
