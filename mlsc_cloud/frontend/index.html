@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CloudWar — Credential Access</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800&family=Satoshi:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+
+    <!-- NAV -->
+    <header class="nav-bar">
+      <div class="nav-inner">
+        <div class="nav-logo">
+          <img src="./mlsc-logo.jpg" alt="MLSC Logo" class="mlsc-logo" />
+          <div class="logo-icon">&#9889;</div>
+          <span class="logo-text">CloudWar</span>
+        </div>
+        <div class="tab-group">
+          <button id="userTab" class="tab-btn active" type="button">User Dashboard</button>
+          <button id="adminTab" class="tab-btn" type="button">Admin Panel</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="main-wrap">
+
+      <!-- USER PANEL -->
+      <section id="userPanel">
+
+        <!-- HERO -->
+        <div class="hero-section dot-bg">
+          <div class="hero-grid">
+            <div class="hero-left">
+              <span class="hero-badge">&#9889; AWS IAM Credential Desk</span>
+              <h1 class="hero-heading">Get Your<br /><span class="hero-outline">Team</span><br />Credentials.</h1>
+              <p class="hero-sub">Enter your team ID below to instantly access your assigned AWS console credentials.</p>
+              <form id="userForm" class="hero-form">
+                <input id="userCodeInput" name="code" type="text" inputmode="numeric" autocomplete="off" maxlength="10"
+                  placeholder="Enter Team ID — e.g. 0001" class="nb-input" required />
+                <button id="userSubmitButton" type="submit" class="nb-btn-primary">Get Credentials</button>
+              </form>
+              <p id="userStatusMessage" class="status-msg"></p>
+            </div>
+
+            <div class="hero-right">
+              <!-- Browser Mockup -->
+              <div class="browser-mockup">
+                <div class="browser-bar">
+                  <span class="dot red"></span>
+                  <span class="dot yellow"></span>
+                  <span class="dot green"></span>
+                  <span class="browser-url">console.aws.amazon.com</span>
+                </div>
+                <div class="browser-body">
+                  <div id="userPlaceholderBox" class="placeholder-box">
+                    <div class="placeholder-icon">&#128274;</div>
+                    <p>Your credentials will appear here.</p>
+                  </div>
+
+                  <div id="userResultBox" class="result-grid hidden">
+                    <div class="result-header">
+                      <span id="userTeamNameValue" class="result-team-name"></span>
+                      <span class="member-badge"><span id="userMemberCount">0</span>/<span id="userTeamSizeValue"></span> members</span>
+                    </div>
+
+                    <div class="cred-row">
+                      <div class="cred-label">Console URL</div>
+                      <div class="cred-value-wrap">
+                        <a id="userUrlValue" href="#" target="_blank" rel="noopener noreferrer" class="cred-link"></a>
+                        <button type="button" data-copy="user-url" class="copy-btn">Copy</button>
+                      </div>
+                    </div>
+
+                    <div class="cred-row">
+                      <div class="cred-label">Username</div>
+                      <div class="cred-value-wrap">
+                        <span id="userUsernameValue" class="cred-value"></span>
+                        <button type="button" data-copy="user-username" class="copy-btn">Copy</button>
+                      </div>
+                    </div>
+
+                    <div class="cred-row">
+                      <div class="cred-label">Password</div>
+                      <div class="cred-value-wrap">
+                        <span id="userPasswordValue" class="cred-value"></span>
+                        <button type="button" data-copy="user-password" class="copy-btn">Copy</button>
+                      </div>
+                    </div>
+
+                    <!-- Members -->
+                    <div class="members-section">
+                      <div class="members-header">Team Members</div>
+                      <ul id="userMembersList" class="members-list"></ul>
+                      <div class="join-form">
+                        <input id="joinNameInput" type="text" placeholder="Your name" class="nb-input-sm" />
+                        <input id="joinPhoneInput" type="tel" placeholder="Phone number" class="nb-input-sm" />
+                        <input id="joinEmailInput" type="email" placeholder="Email address" class="nb-input-sm" />
+                        <button id="joinBtn" type="button" class="nb-btn-yellow">Join Team</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADMIN PANEL -->
+      <section id="adminPanel" class="hidden">
+        <div class="admin-hero dot-bg">
+          <span class="hero-badge">&#128274; Admin Access Only</span>
+          <h1 class="hero-heading" style="font-size:3rem;">Credential Manager</h1>
+          <p class="hero-sub">Search a team ID to load or create a credential record.</p>
+        </div>
+
+        <div class="admin-grid">
+          <!-- Lookup -->
+          <div class="nb-card">
+            <h2 class="card-heading">Find Team</h2>
+            <form id="adminLookupForm" class="form-stack">
+              <div>
+                <label class="nb-label">Admin Token</label>
+                <input id="adminTokenInput" type="password" autocomplete="off" class="nb-input" placeholder="Enter admin token" required />
+              </div>
+              <div>
+                <label class="nb-label">Team ID</label>
+                <input id="adminCodeInput" type="text" inputmode="numeric" maxlength="10" autocomplete="off" class="nb-input" placeholder="e.g. 0010" required />
+              </div>
+              <button id="adminLookupButton" type="submit" class="nb-btn-dark">Find or Create ID</button>
+            </form>
+            <p id="adminStatusMessage" class="status-msg mt-4"></p>
+
+            <!-- Member phone lookup -->
+            <div style="margin-top:2rem;padding-top:1.5rem;border-top:2px solid var(--black);">
+              <h3 class="card-heading" style="font-size:1.1rem;margin-bottom:1rem;">Check Member by Phone</h3>
+              <div class="form-stack">
+                <div>
+                  <label class="nb-label">Phone Number</label>
+                  <input id="adminPhoneLookupInput" type="tel" class="nb-input" placeholder="e.g. 9876543210" />
+                </div>
+                <button id="adminPhoneLookupBtn" type="button" class="nb-btn-dark">Check Phone</button>
+              </div>
+              <div id="adminPhoneResult" class="mt-4"></div>
+            </div>
+          </div>
+
+          <!-- Editor -->
+          <div class="nb-card sage-card">
+            <h2 class="card-heading">Credential Editor</h2>
+            <div id="adminEditorPlaceholder" class="placeholder-inline">Search for a team ID first.</div>
+
+            <form id="adminSaveForm" class="form-stack hidden">
+              <div>
+                <label class="nb-label">Selected Team ID</label>
+                <p id="selectedCodeLabel" class="selected-code-label"></p>
+              </div>
+              <div>
+                <label class="nb-label">Team Name</label>
+                <input id="adminTeamNameInput" type="text" class="nb-input" placeholder="e.g. Team Alpha" />
+              </div>
+              <div>
+                <label class="nb-label">Console URL</label>
+                <input id="adminUrlInput" type="url" class="nb-input" placeholder="https://console.aws.amazon.com/..." />
+              </div>
+              <div>
+                <label class="nb-label">Username</label>
+                <input id="adminUsernameInput" type="text" class="nb-input" placeholder="iam_username" required />
+              </div>
+              <div>
+                <label class="nb-label">Password</label>
+                <input id="adminPasswordInput" type="text" class="nb-input" placeholder="strong password" required />
+              </div>
+              <div>
+                <label class="nb-label">Team Size</label>
+                <input id="adminTeamSizeInput" type="number" min="1" max="20" class="nb-input" value="4" />
+              </div>
+              <div>
+                <label class="nb-label">Members <span class="nb-label-hint">(one per line)</span></label>
+                <textarea id="adminMembersInput" rows="4" class="nb-input" placeholder="Alice&#10;Bob&#10;Charlie&#10;Dave"></textarea>
+              </div>
+              <button id="adminSaveButton" type="submit" class="nb-btn-primary">Save Team</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+
+
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

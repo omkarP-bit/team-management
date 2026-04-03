@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: cloudwar-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 4000
+      - key: NODE_ENV
+        value: production
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: SINGLE_USE_CODES
+        value: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
