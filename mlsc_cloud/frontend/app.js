@@ -93,18 +93,17 @@ function renderMembers(members, teamSize) {
     const phone = typeof m === "object" ? m.phone : "";
     const email = typeof m === "object" ? m.email : "";
     const li = document.createElement("li");
-    li.innerHTML = `
-      <div class="member-info">
-        <span class="member-name">${name}</span>
-        <span class="member-meta">${phone} &bull; ${email}</span>
-      </div>
-      <button type="button" data-name="${name}" class="leave-btn">Leave</button>
-    `;
+    li.innerHTML =
+      '<div class="member-info">' +
+        '<span class="member-name">' + name + '</span>' +
+        '<span class="member-meta">' + phone + ' &bull; ' + email + '</span>' +
+      '</div>' +
+      '<button type="button" data-name="' + name + '" class="leave-btn">Leave</button>';
     userMembersList.appendChild(li);
   });
 
-  userMembersList.querySelectorAll(".leave-btn").forEach((btn) => {
-    btn.addEventListener("click", () => handleLeave(btn.dataset.name));
+  userMembersList.querySelectorAll(".leave-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() { handleLeave(btn.dataset.name); });
   });
 }
 
@@ -114,8 +113,7 @@ function showUserCredentials(data) {
   userUrlValue.href = data.url || "#";
   userUsernameValue.textContent = data.username;
   userPasswordValue.textContent = data.password;
-  renderMembers(data.members ?? [], data.team_size ?? 4);
-
+  renderMembers(data.members || [], data.team_size || 4);
   userResultBox.classList.remove("hidden");
   userResultBox.classList.add("animate-in");
   userPlaceholderBox.classList.add("hidden");
@@ -127,15 +125,18 @@ function hideUserCredentials() {
   currentCode = "";
 }
 
-function showAdminEditor(code, data = {}) {
+function showAdminEditor(code, data) {
+  data = data || {};
   selectedAdminCode = code;
   selectedCodeLabel.textContent = code;
   adminTeamNameInput.value = data.team_name || "";
   adminUrlInput.value = data.url || "";
   adminUsernameInput.value = data.username || "";
   adminPasswordInput.value = data.password || "";
-  adminTeamSizeInput.value = data.team_size ?? 4;
-  adminMembersInput.value = Array.isArray(data.members) ? data.members.map((m) => typeof m === "object" ? m.name : m).join("\n") : "";
+  adminTeamSizeInput.value = data.team_size || 4;
+  adminMembersInput.value = Array.isArray(data.members)
+    ? data.members.map(function(m) { return typeof m === "object" ? m.name : m; }).join("\n")
+    : "";
   adminEditorPlaceholder.classList.add("hidden");
   adminSaveForm.classList.remove("hidden");
 }
@@ -154,7 +155,7 @@ async function handleUserSubmit(event) {
     setUserLoading(true);
     setToneStatus(userStatusMessage, "Checking ID...", "neutral");
 
-    const response = await etch(`${API_BASE}/api/get-credentials`, {
+    const response = await window.fetch(API_BASE + "/api/get-credentials", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code })
@@ -193,7 +194,7 @@ async function handleJoin() {
     joinBtn.disabled = true;
     joinBtn.textContent = "Joining...";
 
-    const response = await etch(`${API_BASE}/api/join-team`, {
+    const response = await window.fetch(API_BASE + "/api/join-team", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: currentCode, name, phone, email })
@@ -209,7 +210,7 @@ async function handleJoin() {
     joinPhoneInput.value = "";
     joinEmailInput.value = "";
     renderMembers(data.members, Number(userTeamSizeValue.textContent));
-    setToneStatus(userStatusMessage, `${name} joined the team.`, "success");
+    setToneStatus(userStatusMessage, name + " joined the team.", "success");
   } catch (error) {
     setToneStatus(userStatusMessage, "Network error. Try again.", "error");
     console.error(error);
@@ -223,7 +224,7 @@ async function handleLeave(name) {
   if (!currentCode) return;
 
   try {
-    const response = await etch(`${API_BASE}/api/leave-team`, {
+    const response = await window.fetch(API_BASE + "/api/leave-team", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: currentCode, name })
@@ -236,7 +237,7 @@ async function handleLeave(name) {
     }
 
     renderMembers(data.members, Number(userTeamSizeValue.textContent));
-    setToneStatus(userStatusMessage, `${name} left the team.`, "success");
+    setToneStatus(userStatusMessage, name + " left the team.", "success");
   } catch (error) {
     setToneStatus(userStatusMessage, "Network error. Try again.", "error");
     console.error(error);
@@ -254,7 +255,7 @@ async function handleAdminPhoneLookup() {
     adminPhoneLookupBtn.disabled = true;
     adminPhoneLookupBtn.textContent = "Checking...";
 
-    const response = await etch(`${API_BASE}/api/admin/lookup-member`, {
+    const response = await window.fetch(API_BASE + "/api/admin/lookup-member", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-token": token },
       body: JSON.stringify({ phone })
@@ -262,18 +263,18 @@ async function handleAdminPhoneLookup() {
 
     const data = await response.json();
     if (!response.ok || !data.success) {
-      adminPhoneResult.innerHTML = `<p class='status-msg error'>${data.message || "Lookup failed."}</p>`;
+      adminPhoneResult.innerHTML = "<p class='status-msg error'>" + (data.message || "Lookup failed.") + "</p>";
       return;
     }
 
     if (!data.found) {
-      adminPhoneResult.innerHTML = `<div class="phone-result-box not-found">&#10007; No member found with this phone number.</div>`;
+      adminPhoneResult.innerHTML = "<div class='phone-result-box not-found'>&#10007; No member found with this phone number.</div>";
     } else {
-      adminPhoneResult.innerHTML = `
-        <div class="phone-result-box found">
-          &#10003; Member found in <strong>Team ${data.team_name || data.team_code}</strong><br/>
-          <span style="font-size:0.85rem;">Name: ${data.member.name} &bull; Email: ${data.member.email}</span>
-        </div>`;
+      adminPhoneResult.innerHTML =
+        "<div class='phone-result-box found'>" +
+          "&#10003; Member found in <strong>Team " + (data.team_name || data.team_code) + "</strong><br/>" +
+          "<span style='font-size:0.85rem;'>Name: " + data.member.name + " &bull; Email: " + data.member.email + "</span>" +
+        "</div>";
     }
   } catch (error) {
     adminPhoneResult.innerHTML = "<p class='status-msg error'>Network error. Try again.</p>";
@@ -296,7 +297,7 @@ async function handleAdminLookup(event) {
     setAdminLookupLoading(true);
     setToneStatus(adminStatusMessage, "Checking ID...", "neutral");
 
-    const response = await etch(`${API_BASE}/api/admin/get-credential`, {
+    const response = await window.fetch(API_BASE + "/api/admin/get-credential", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-token": token },
       body: JSON.stringify({ code })
@@ -333,7 +334,7 @@ async function handleAdminSave(event) {
   if (!token) { setToneStatus(adminStatusMessage, "Enter admin token.", "error"); return; }
   if (!username || !password) { setToneStatus(adminStatusMessage, "Username and password are required.", "error"); return; }
 
-  const members = adminMembersInput.value.split("\n").map((m) => m.trim()).filter(Boolean);
+  const members = adminMembersInput.value.split("\n").map(function(m) { return m.trim(); }).filter(Boolean);
 
   const payload = {
     code: selectedAdminCode,
@@ -349,7 +350,7 @@ async function handleAdminSave(event) {
     setAdminSaveLoading(true);
     setToneStatus(adminStatusMessage, "Saving...", "neutral");
 
-    const response = await etch(`${API_BASE}/api/admin/update-credential`, {
+    const response = await window.fetch(API_BASE + "/api/admin/update-credential", {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-admin-token": token },
       body: JSON.stringify(payload)
@@ -374,22 +375,22 @@ async function copyValue(value, label) {
   if (!value) return;
   try {
     await navigator.clipboard.writeText(value);
-    setToneStatus(userStatusMessage, `${label} copied.`, "success");
+    setToneStatus(userStatusMessage, label + " copied.", "success");
   } catch {
     setToneStatus(userStatusMessage, "Could not copy automatically.", "error");
   }
 }
 
-userTab.addEventListener("click", () => setActiveTab("user"));
-adminTab.addEventListener("click", () => setActiveTab("admin"));
+userTab.addEventListener("click", function() { setActiveTab("user"); });
+adminTab.addEventListener("click", function() { setActiveTab("admin"); });
 userForm.addEventListener("submit", handleUserSubmit);
 adminLookupForm.addEventListener("submit", handleAdminLookup);
 adminSaveForm.addEventListener("submit", handleAdminSave);
 joinBtn.addEventListener("click", handleJoin);
 adminPhoneLookupBtn.addEventListener("click", handleAdminPhoneLookup);
 
-document.querySelectorAll(".copy-btn").forEach((button) => {
-  button.addEventListener("click", () => {
+document.querySelectorAll(".copy-btn").forEach(function(button) {
+  button.addEventListener("click", function() {
     if (button.dataset.copy === "user-url") copyValue(userUrlValue.textContent, "URL");
     else if (button.dataset.copy === "user-username") copyValue(userUsernameValue.textContent, "Username");
     else if (button.dataset.copy === "user-password") copyValue(userPasswordValue.textContent, "Password");
